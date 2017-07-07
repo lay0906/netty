@@ -2502,6 +2502,10 @@ public abstract class AbstractByteBufTest {
 
     private ByteBuf releasedBuffer() {
         ByteBuf buffer = newBuffer(8);
+
+        // Clear the buffer so we are sure the reader and writer indices are 0.
+        // This is important as we may return a slice from newBuffer(...).
+        buffer.clear();
         assertTrue(buffer.release());
         return buffer;
     }
@@ -2764,6 +2768,30 @@ public abstract class AbstractByteBufTest {
         } finally {
             buffer.release();
         }
+    }
+
+    @Test(expected = IllegalReferenceCountException.class)
+    public void testSetUsAsciiCharSequenceAfterRelease() {
+        testSetCharSequenceAfterRelease0(CharsetUtil.US_ASCII);
+    }
+
+    @Test(expected = IllegalReferenceCountException.class)
+    public void testSetIso88591CharSequenceAfterRelease() {
+        testSetCharSequenceAfterRelease0(CharsetUtil.ISO_8859_1);
+    }
+
+    @Test(expected = IllegalReferenceCountException.class)
+    public void testSetUtf8CharSequenceAfterRelease() {
+        testSetCharSequenceAfterRelease0(CharsetUtil.UTF_8);
+    }
+
+    @Test(expected = IllegalReferenceCountException.class)
+    public void testSetUtf16CharSequenceAfterRelease() {
+        testSetCharSequenceAfterRelease0(CharsetUtil.UTF_16);
+    }
+
+    private void testSetCharSequenceAfterRelease0(Charset charset) {
+        releasedBuffer().setCharSequence(0, "x", charset);
     }
 
     @Test(expected = IllegalReferenceCountException.class)
@@ -3084,6 +3112,30 @@ public abstract class AbstractByteBufTest {
     @Test(expected = IllegalReferenceCountException.class)
     public void testWriteZeroAfterRelease() throws IOException {
         releasedBuffer().writeZero(1);
+    }
+
+    @Test(expected = IllegalReferenceCountException.class)
+    public void testWriteUsAsciiCharSequenceAfterRelease() {
+        testWriteCharSequenceAfterRelease0(CharsetUtil.US_ASCII);
+    }
+
+    @Test(expected = IllegalReferenceCountException.class)
+    public void testWriteIso88591CharSequenceAfterRelease() {
+        testWriteCharSequenceAfterRelease0(CharsetUtil.ISO_8859_1);
+    }
+
+    @Test(expected = IllegalReferenceCountException.class)
+    public void testWriteUtf8CharSequenceAfterRelease() {
+        testWriteCharSequenceAfterRelease0(CharsetUtil.UTF_8);
+    }
+
+    @Test(expected = IllegalReferenceCountException.class)
+    public void testWriteUtf16CharSequenceAfterRelease() {
+        testWriteCharSequenceAfterRelease0(CharsetUtil.UTF_16);
+    }
+
+    private void testWriteCharSequenceAfterRelease0(Charset charset) {
+        releasedBuffer().writeCharSequence("x", charset);
     }
 
     @Test(expected = IllegalReferenceCountException.class)
